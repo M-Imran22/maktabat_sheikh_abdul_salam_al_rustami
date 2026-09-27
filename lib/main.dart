@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,8 +17,11 @@ Future<void> main() async {
     await JustAudioBackground.init(
       androidNotificationChannelId: 'com.shaikhrustami.maktabat.audio',
       androidNotificationChannelName: 'صدائے شیخ عبدالسلام',
-      androidNotificationOngoing: true,
-      androidShowNotificationBadge: true,
+      androidNotificationIcon: 'drawable/ic_stat_audio',
+      notificationColor: AppTheme.primary,
+      androidNotificationOngoing: false,
+      androidShowNotificationBadge: false,
+      preloadArtwork: true,
     );
   } catch (_) {}
   runApp(const MaktabatApp());
@@ -36,8 +41,55 @@ class MaktabatApp extends StatelessWidget {
     return MaterialApp(
       title: 'مکتبہ شیخ عبدالسلام الرستمی',
       theme: AppTheme.lightTheme,
-      home: const HomePage(),
+      home: const OpeningScreen(),
       debugShowCheckedModeBanner: false,
+    );
+  }
+}
+
+class OpeningScreen extends StatefulWidget {
+  const OpeningScreen({super.key});
+
+  @override
+  State<OpeningScreen> createState() => _OpeningScreenState();
+}
+
+class _OpeningScreenState extends State<OpeningScreen> {
+  Timer? _openingTimer;
+  bool _showHome = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _openingTimer = Timer(const Duration(milliseconds: 1400), () {
+      if (mounted) setState(() => _showHome = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _openingTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 250),
+      child:
+          _showHome
+              ? const HomePage(key: ValueKey('home'))
+              : Scaffold(
+                key: const ValueKey('opening'),
+                backgroundColor: AppTheme.primary,
+                body: SizedBox.expand(
+                  child: Image.asset(
+                    'assets/images/banners/app-logo-burgundy.png',
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.high,
+                  ),
+                ),
+              ),
     );
   }
 }

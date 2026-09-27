@@ -33,14 +33,6 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   int initialPage = 0;
   bool isReaderReady = false;
 
-  // Inverted color matrix for Night Mode reading
-  static const List<double> _invertMatrix = [
-    -1.0, 0.0, 0.0, 0.0, 255.0, // Red
-    0.0, -1.0, 0.0, 0.0, 255.0, // Green
-    0.0, 0.0, -1.0, 0.0, 255.0, // Blue
-    0.0, 0.0, 0.0, 1.0, 0.0, // Alpha
-  ];
-
   @override
   void initState() {
     super.initState();
@@ -57,8 +49,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   Future<void> _initReaderState() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final savedPage = widget.targetPage ?? prefs.getInt('last_page_${widget.title}') ?? 0;
-      final bookmarkList = prefs.getStringList('bookmarks_${widget.title}') ?? [];
+      final savedPage =
+          widget.targetPage ?? prefs.getInt('last_page_${widget.title}') ?? 0;
+      final bookmarkList =
+          prefs.getStringList('bookmarks_${widget.title}') ?? [];
       if (mounted) {
         setState(() {
           initialPage = savedPage;
@@ -258,9 +252,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                       ),
                     ],
                   ),
-                  Divider(
-                    color: isNightMode ? Colors.white24 : Colors.black12,
-                  ),
+                  Divider(color: isNightMode ? Colors.white24 : Colors.black12),
                   if (bookmarks.isEmpty)
                     Padding(
                       padding: const EdgeInsets.all(24.0),
@@ -286,9 +278,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                               'صفحہ نمبر: ${page + 1}',
                               style: TextStyle(
                                 color:
-                                    isNightMode
-                                        ? Colors.white
-                                        : Colors.black87,
+                                    isNightMode ? Colors.white : Colors.black87,
                               ),
                             ),
                             trailing: IconButton(
@@ -364,6 +354,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             tooltip: isNightMode ? 'ڈے موڈ' : 'نائٹ موڈ',
             onPressed: () {
               setState(() {
+                initialPage = currentPage;
+                controller = null;
                 isNightMode = !isNightMode;
               });
             },
@@ -383,9 +375,10 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               bookmarks.contains(currentPage)
                   ? Icons.bookmark
                   : Icons.bookmark_border,
-              color: bookmarks.contains(currentPage)
-                  ? const Color(0xFFF7C844)
-                  : (isNightMode ? Colors.white : primaryEmerald),
+              color:
+                  bookmarks.contains(currentPage)
+                      ? const Color(0xFFF7C844)
+                      : (isNightMode ? Colors.white : primaryEmerald),
             ),
             tooltip: 'صفحہ بک مارک کریں',
             onPressed: _toggleBookmark,
@@ -425,37 +418,31 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
               )
               : Stack(
                 children: [
-                  // PDF Renderer with optional Night Mode ColorFilter
-                  ColorFiltered(
-                    colorFilter:
-                        isNightMode
-                            ? const ColorFilter.matrix(_invertMatrix)
-                            : const ColorFilter.mode(
-                              Colors.transparent,
-                              BlendMode.dst,
-                            ),
-                    child: PDFView(
-                      filePath: localPath!,
-                      defaultPage: initialPage,
-                      enableSwipe: true,
-                      swipeHorizontal: false,
-                      autoSpacing: true,
-                      pageFling: false,
-                      fitEachPage: true,
-                      fitPolicy: FitPolicy.WIDTH,
-                      onViewCreated: (PDFViewController pdfViewController) {
-                        controller = pdfViewController;
-                      },
-                      onPageChanged: (int? page, int? total) {
-                        if (page != null) {
-                          setState(() {
-                            currentPage = page;
-                            totalPages = total ?? totalPages;
-                          });
-                          _saveLastPage(page);
-                        }
-                      },
-                    ),
+                  // Native PDF pages need the viewer's own night mode.
+                  PDFView(
+                    key: ValueKey(isNightMode),
+                    filePath: localPath!,
+                    defaultPage: initialPage,
+                    nightMode: isNightMode,
+                    backgroundColor: isNightMode ? Colors.black : Colors.white,
+                    enableSwipe: true,
+                    swipeHorizontal: false,
+                    autoSpacing: true,
+                    pageFling: false,
+                    fitEachPage: true,
+                    fitPolicy: FitPolicy.WIDTH,
+                    onViewCreated: (PDFViewController pdfViewController) {
+                      controller = pdfViewController;
+                    },
+                    onPageChanged: (int? page, int? total) {
+                      if (page != null) {
+                        setState(() {
+                          currentPage = page;
+                          totalPages = total ?? totalPages;
+                        });
+                        _saveLastPage(page);
+                      }
+                    },
                   ),
 
                   // Scrubber Bar Drawer Toggle (bottom)

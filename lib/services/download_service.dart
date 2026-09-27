@@ -65,6 +65,9 @@ class DownloadService {
       final response = await client.send(request);
 
       if (response.statusCode != 200) {
+        if (response.statusCode == 404) {
+          throw const HttpException('یہ کتاب سرور پر دستیاب نہیں ہے۔');
+        }
         throw Exception(
           'سرور سے ڈاؤن لوڈ ناکام ہوا (کوڈ: ${response.statusCode})',
         );
@@ -98,7 +101,12 @@ class DownloadService {
         downloadedBytes,
       );
     } catch (e) {
-      await _handleDownloadError(bookId, tempFile, sink, e.toString());
+      await _handleDownloadError(
+        bookId,
+        tempFile,
+        sink,
+        e is HttpException ? e.message : e.toString(),
+      );
     } finally {
       client?.close();
     }

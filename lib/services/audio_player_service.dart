@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:just_audio_background/just_audio_background.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_config.dart';
 import '../utils/audio_cache_manager.dart';
@@ -18,6 +21,7 @@ class AudioPlayerService {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   int _lastSavedSecond = 0;
+  Future<Uri?>? _artworkUriFuture;
 
   final StreamController<PlayerState> _stateController =
       StreamController<PlayerState>.broadcast();
@@ -93,6 +97,29 @@ class AudioPlayerService {
     return audio['relativePath'] ?? audio['fileName'] ?? audio['title'] ?? '';
   }
 
+  Future<Uri?> _notificationArtworkUri() =>
+      _artworkUriFuture ??= _copyNotificationArtwork();
+
+  Future<Uri?> _copyNotificationArtwork() async {
+    try {
+      const assetPath = 'assets/images/banners/app-logo-burgundy.png';
+      final directory = await getApplicationSupportDirectory();
+      final file = File(
+        '${directory.path}${Platform.pathSeparator}notification_artwork_v1.png',
+      );
+      if (!await file.exists()) {
+        final data = await rootBundle.load(assetPath);
+        await file.writeAsBytes(
+          data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+          flush: true,
+        );
+      }
+      return file.uri;
+    } catch (_) {
+      return null;
+    }
+  }
+
   /// Throttled persistence: saves position to SharedPreferences every 2-3 seconds
   void _savePositionThrottled(Duration pos) {
     final currentSec = pos.inSeconds;
@@ -159,8 +186,8 @@ class AudioPlayerService {
       id: audioId.isNotEmpty ? audioId : 'audio_track',
       title: title,
       album: category,
-      artist: 'شیخ عبدالسلام الرستمی رحمہ اللہ',
-      artUri: Uri.parse('asset:///assets/images/banners/sheikh_portrait.png'),
+      artist: 'شیخ عبدالسلام رستمی',
+      artUri: await _notificationArtworkUri(),
     );
 
     // 1. Check if downloaded locally for offline playback

@@ -1,4 +1,4 @@
-package com.example.maktabat_sheikh_abdul_salam_al_rustami
+package com.m_imran.maktabat_sheikh_abdul_salam_al_rustami
 
 import android.content.Intent
 import android.net.Uri

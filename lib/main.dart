@@ -6,6 +6,7 @@ import 'screens/books_screen.dart';
 import 'screens/audio_screen.dart';
 import 'screens/biography_screen.dart';
 import 'screens/pdf_viewer_screen.dart';
+import 'screens/privacy_policy_screen.dart';
 import 'utils/pdf_cache_manager.dart';
 import 'utils/app_launcher_helper.dart';
 import 'package:just_audio_background/just_audio_background.dart';
@@ -696,6 +697,18 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          TextButton.icon(
+            onPressed:
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PrivacyPolicyScreen(),
+                  ),
+                ),
+            icon: const Icon(Icons.privacy_tip_outlined),
+            label: const Text('رازداری کی پالیسی'),
+          ),
         ],
       ),
     );
@@ -771,7 +784,7 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               content: const Text(
-                'اگر آپ کو کسی کتاب میں غلطی نظر آئے یا کوئی مفید تجویز دینا چاہیں تو ہم سے رابطہ فرما سکتے ہیں۔\n\nرابطہ ای میل:\ncontact@maktabat-rustami.com',
+                'اگر آپ کو کسی کتاب میں غلطی نظر آئے یا کوئی مفید تجویز دینا چاہیں تو ہم سے رابطہ فرما سکتے ہیں۔\n\nرابطہ ای میل:\nMuhammadImran100@gmail.com',
                 style: TextStyle(height: 1.6),
               ),
               actions: [

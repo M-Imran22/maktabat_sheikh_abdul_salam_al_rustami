@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'screens/books_screen.dart';
 import 'screens/audio_screen.dart';
 import 'screens/biography_screen.dart';
 import 'screens/pdf_viewer_screen.dart';
 import 'utils/pdf_cache_manager.dart';
+import 'utils/app_launcher_helper.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'constants/app_theme.dart';
 
@@ -680,7 +680,7 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.share_rounded,
                 label: 'شیئر کریں',
                 color: MaktabatApp.primaryEmerald,
-                onTap: _showShareDialog,
+                onTap: _shareApp,
               ),
               _buildActionButton(
                 icon: Icons.email_rounded,
@@ -739,59 +739,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showShareDialog() {
-    showDialog(
-      context: context,
-      builder:
-          (context) => Directionality(
-            textDirection: TextDirection.rtl,
-            child: AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              title: const Row(
-                children: [
-                  Icon(Icons.share, color: MaktabatApp.primaryEmerald),
-                  SizedBox(width: 8),
-                  Text('ایپ شیئر کریں'),
-                ],
-              ),
-              content: const Text(
-                'مکتبہ شیخ عبدالسلام الرستمی رحمہ اللہ\nمفسر قرآن شیخ عبدالسلام الرستمی کی تمام کتب اور آڈیو بیانات ایک ہی ایپ میں حاصل کریں۔\n\n(اپنے احباب اور طلبہ کے ساتھ شیئر کریں)',
-                style: TextStyle(height: 1.6),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Clipboard.setData(
-                      const ClipboardData(
-                        text:
-                            'مکتبہ شیخ عبدالسلام الرستمی - مفسر قرآن شیخ عبدالسلام الرستمی کی کتب اور آڈیو بیانات۔',
-                      ),
-                    );
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text(
-                          'شیئر لنک کاپی کر لیا گیا ہے',
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    );
-                  },
-                  child: const Text(
-                    'متن کاپی کریں',
-                    style: TextStyle(color: MaktabatApp.primaryEmerald),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('بند کریں'),
-                ),
-              ],
-            ),
-          ),
-    );
+  Future<void> _shareApp() async {
+    const message =
+        'مکتبہ شیخ عبدالسلام رستمی\nشیخ عبدالسلام رستمی کی کتب اور آڈیو بیانات اس ایپ میں پڑھیں اور سنیں:';
+    final opened = await AppLauncherHelper.shareApp(message);
+    if (!opened && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('شیئرنگ اس ڈیوائس پر دستیاب نہیں ہے')),
+      );
+    }
   }
 
   void _showContactDialog() {

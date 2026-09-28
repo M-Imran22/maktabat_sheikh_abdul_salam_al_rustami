@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/app_theme.dart';
@@ -20,6 +24,10 @@ class PDFViewerScreen extends StatefulWidget {
 }
 
 class _PDFViewerScreenState extends State<PDFViewerScreen> {
+  static const MethodChannel _screenSecurityChannel = MethodChannel(
+    'com.shaikhrustami.maktabat/screen_security',
+  );
+
   String? localPath;
   bool isLoading = true;
   String? error;
@@ -47,6 +55,19 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   }
 
   Future<void> _initReaderState() async {
+    final secure = await _setPdfSecure(true);
+    if (!mounted) {
+      if (secure) unawaited(_setPdfSecure(false));
+      return;
+    }
+    if (!secure) {
+      setState(() {
+        error = 'محفوظ مطالعہ شروع نہیں ہو سکا۔';
+        isLoading = false;
+        isReaderReady = true;
+      });
+      return;
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       final savedPage =
@@ -74,8 +95,24 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
 
   @override
   void dispose() {
+    unawaited(_setPdfSecure(false));
     _saveLastPage(currentPage);
     super.dispose();
+  }
+
+  Future<bool> _setPdfSecure(bool enabled) async {
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return true;
+    try {
+      await _screenSecurityChannel.invokeMethod<void>('setPdfSecure', {
+        'enabled': enabled,
+      });
+      return true;
+    } on PlatformException catch (error) {
+      debugPrint('Could not update PDF screenshot protection: $error');
+    } on MissingPluginException catch (error) {
+      debugPrint('PDF screenshot protection is unavailable: $error');
+    }
+    return false;
   }
 
   Future<void> _saveLastPage(int page) async {

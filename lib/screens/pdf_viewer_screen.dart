@@ -38,7 +38,8 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
   bool isNightMode = false;
   bool showScrubber = false;
 
-  int initialPage = 0;
+  int? _pendingPage;
+  bool _documentRendered = false;
   bool isReaderReady = false;
 
   @override
@@ -76,7 +77,7 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
           prefs.getStringList('bookmarks_${widget.title}') ?? [];
       if (mounted) {
         setState(() {
-          initialPage = savedPage;
+          _pendingPage = savedPage;
           currentPage = savedPage;
           bookmarks = bookmarkList.map((e) => int.parse(e)).toList();
           isLoading = false;
@@ -391,7 +392,9 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
             tooltip: isNightMode ? 'ڈے موڈ' : 'نائٹ موڈ',
             onPressed: () {
               setState(() {
-                initialPage = currentPage;
+                _pendingPage = currentPage;
+                _documentRendered = false;
+                totalPages = 0;
                 controller = null;
                 isNightMode = !isNightMode;
               });
@@ -458,8 +461,16 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                   // Native PDF pages need the viewer's own night mode.
                   PDFView(
                     key: ValueKey(isNightMode),
-                    filePath: localPath!,
-                    defaultPage: initialPage,
+                    // Android's PDF plugin parses this value as a URI. A colon
+                    // in a book title can otherwise make an absolute path look
+                    // like a content URI instead of a local file.
+                    filePath:
+                        defaultTargetPlatform == TargetPlatform.android
+                            ? Uri.file(localPath!).toString()
+                            : localPath!,
+                    // Start on a valid page, then restore the saved page after
+                    // the PDF reports its actual page count.
+                    defaultPage: 0,
                     nightMode: isNightMode,
                     backgroundColor: isNightMode ? Colors.black : Colors.white,
                     enableSwipe: true,
@@ -471,8 +482,49 @@ class _PDFViewerScreenState extends State<PDFViewerScreen> {
                     onViewCreated: (PDFViewController pdfViewController) {
                       controller = pdfViewController;
                     },
+                    onRender: (int? pages) {
+                      if (!mounted) return;
+                      if (pages == null || pages <= 0) {
+                        setState(() {
+                          error =
+                              'اس پی ڈی ایف کے صفحات نہیں کھل سکے۔ کتاب حذف کر کے دوبارہ ڈاؤن لوڈ کریں۔';
+                        });
+                        return;
+                      }
+
+                      final requestedPage = _pendingPage ?? currentPage;
+                      final restoredPage = requestedPage.clamp(0, pages - 1);
+                      _pendingPage = null;
+                      _documentRendered = true;
+                      setState(() {
+                        totalPages = pages;
+                        currentPage = restoredPage;
+                      });
+                      if (restoredPage != 0) {
+                        controller?.setPage(restoredPage);
+                      } else if (requestedPage != 0) {
+                        _saveLastPage(0);
+                      }
+                    },
+                    onError: (dynamic pdfError) {
+                      debugPrint('Could not open PDF: $pdfError');
+                      if (!mounted) return;
+                      setState(() {
+                        error =
+                            'اس پی ڈی ایف کو نہیں کھولا جا سکا۔ کتاب حذف کر کے دوبارہ ڈاؤن لوڈ کریں۔';
+                      });
+                    },
+                    onPageError: (int? page, dynamic pdfError) {
+                      debugPrint('Could not render PDF page $page: $pdfError');
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('پی ڈی ایف کا صفحہ نہ کھل سکا۔ کتاب دوبارہ ڈاؤن لوڈ کریں۔'),
+                        ),
+                      );
+                    },
                     onPageChanged: (int? page, int? total) {
-                      if (page != null) {
+                      if (_documentRendered && page != null && mounted) {
                         setState(() {
                           currentPage = page;
                           totalPages = total ?? totalPages;

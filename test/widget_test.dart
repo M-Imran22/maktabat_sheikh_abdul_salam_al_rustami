@@ -49,10 +49,12 @@ void main() {
       addTearDown(() => tester.view.reset());
 
       await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pumpAndSettle();
 
       // Title & Basmalah
-      expect(find.text('مکتبہ شیخ عبدالسلام الرستمی'), findsWidgets);
+      expect(find.text('مکتبہ شیخ عبدالسلام رستمی'), findsWidgets);
+      expect(find.text('مولانا سید عبدالسلام رستمی'), findsOneWidget);
       expect(
         find.text('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ'),
         findsOneWidget,
@@ -77,6 +79,7 @@ void main() {
       addTearDown(() => tester.view.reset());
 
       await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pumpAndSettle();
 
       final booksBtn = find.text('کتابیں و مؤلفات (PDF)');
@@ -89,7 +92,7 @@ void main() {
       expect(find.text('کتب و مؤلفات'), findsOneWidget);
       expect(find.text('الموسوعة القرآنية (جلد ۱)'), findsOneWidget);
       expect(find.text('تفسیر احسن الکلام (پښتو)'), findsOneWidget);
-      expect(BooksScreen.booksCount, 22);
+      expect(BooksScreen.booksCount, 23);
     });
 
     testWidgets('Can navigate to AudioScreen from Home', (
@@ -100,6 +103,7 @@ void main() {
       addTearDown(() => tester.view.reset());
 
       await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pumpAndSettle();
 
       final audioBtn = find.text('آڈیو لیکچرز و تقاریر');
@@ -121,6 +125,7 @@ void main() {
       addTearDown(() => tester.view.reset());
 
       await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pumpAndSettle();
 
       final bioBtn = find.text('شیخ کا تعارف و سوانح');
@@ -131,8 +136,13 @@ void main() {
       // Verify BiographyScreen is pushed
       expect(find.byType(BiographyScreen), findsOneWidget);
       expect(find.text('سوانح حیات و علمی خدمات'), findsOneWidget);
-      expect(find.text('ولادت اور خاندانی پس منظر'), findsOneWidget);
-      expect(find.text('جامعہ تعلیم القرآن رستم کا قیام'), findsOneWidget);
+      expect(
+        find.text('شیخ القرآن مولانا سید عبدالسلام رستمی رحمہ اللہ'),
+        findsOneWidget,
+      );
+      expect(find.text('تعارف و خاندانی پس منظر'), findsOneWidget);
+      expect(find.text('درسِ قرآن اور تدریسی خدمات'), findsOneWidget);
+      expect(find.textContaining('مدرسہ فیض الاسلام رستم'), findsOneWidget);
     });
 
     test('AppConfig URL resolution tests with live portal server', () {
@@ -221,6 +231,7 @@ void main() {
       addTearDown(() => tester.view.reset());
 
       await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
       await tester.pumpAndSettle();
 
       final booksBtn = find.text('کتابیں و مؤلفات (PDF)');

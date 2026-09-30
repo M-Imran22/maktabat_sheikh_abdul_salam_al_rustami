@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/app_theme.dart';
+import '../data/biography_content.dart';
 
 class BiographyScreen extends StatelessWidget {
   const BiographyScreen({super.key});
@@ -87,7 +88,7 @@ class BiographyScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     const Text(
-                      'حضرت مولانا شیخ عبدالسلام الرستمی',
+                      BiographyContent.title,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w900,
@@ -97,7 +98,7 @@ class BiographyScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     const Text(
-                      'رحمہ اللہ تعالیٰ (۱۹۳۸ء - ۲۰۱۴ء)',
+                      'وفات: 17 نومبر 2014ء، 23 محرم 1436ھ',
                       style: TextStyle(
                         fontSize: 15,
                         color: Color(0xFFF3E2C4),
@@ -115,7 +116,7 @@ class BiographyScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Text(
-                        'استاذ العلماء ومفسر قرآن کریم',
+                        'شیخ القرآن والحدیث',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 13,
@@ -129,107 +130,65 @@ class BiographyScreen extends StatelessWidget {
 
               const SizedBox(height: 20),
 
-              // Biography Timeline Sections
+              // Biography supplied by the app's publisher.
               _buildSection(
-                icon: Icons.child_care_rounded,
-                title: 'ولادت اور خاندانی پس منظر',
-                content:
-                    'حضرت شیخ مولانا عبدالسلام الرستمی رحمہ اللہ کی ولادت ۱۹۳۸ء میں خیبر پختونخوا کے تاریخی اور علمی قصبے "رستم" (ضلع مردان) کے ایک معزز اور دینی گھرانے میں ہوئی۔ آپ کے والد محترم ایک متقی اور دیندار انسان تھے جنہوں نے بچپن ہی سے آپ کی تربیت اسلامی خطوط پر فرمائی۔',
+                icon: Icons.family_restroom_rounded,
+                title: 'تعارف و خاندانی پس منظر',
+                content: BiographyContent.family,
               ),
 
               _buildSection(
                 icon: Icons.school_rounded,
                 title: 'تعلیم و تربیت اور اساتذہ کرام',
-                content:
-                    'ابتدائی تعلیم اپنے آبائی علاقے کے کبار علماء سے حاصل کی، جس کے بعد آپ نے دینی علوم کے حصول کے لیے اکابر اہل علم کا رخ کیا۔ آپ نے علوم قرآن، حدیث، فقہ، اصول، عربی ادب اور منطق وفلسفہ کی اعلیٰ ترین کتب کا گہرا مطالعہ کیا۔ آپ کے اساتذہ میں اپنے دور کے جید اور نامور شیوخ الحدیث والتفسیر شامل تھے۔',
+                content: BiographyContent.education,
               ),
 
               _buildSection(
                 icon: Icons.account_balance_rounded,
-                title: 'جامعہ تعلیم القرآن رستم کا قیام',
-                content:
-                    'فراغت کے بعد آپ نے دعوت و تدریس کو اپنا اوڑھنا بچھونا بنایا اور مردان میں "جامعہ تعلیم القرآن والسنۃ" کی بنیاد رکھی۔ یہ ادارہ نہ صرف پاکستان بلکہ افغانستان اور دنیا بھر کے طلبہ کے لیے علوم قرآنی اور تفسیری دروس کا عظیم الشان مرکز بن گیا۔ ہزاروں تشنگانِ علم نے آپ سے قرآن و حدیث کا فیض حاصل کیا۔',
+                title: 'درسِ قرآن اور تدریسی خدمات',
+                content: BiographyContent.teaching,
+              ),
+
+              _buildSection(
+                icon: Icons.mosque_rounded,
+                title: 'پشاور میں تدریس اور دعوت',
+                content: BiographyContent.peshawar,
               ),
 
               _buildSection(
                 icon: Icons.menu_book_rounded,
-                title: 'شاہکار تصنیف: تفسیر احسن الکلام',
-                content:
-                    'شیخ رحمہ اللہ کی علمی زندگی کا سب سے درخشندہ کارنامہ قرآن مجید کی مفصل و مدلل تفسیر "احسن الکلام" ہے۔ یہ تفسیر قرآنی آیات کی تشریح، توحید خالص کے دلائل، سنت نبوی کی اہمیت اور باطل نظریات کے رد پر مشتمل ایک نادر علمی خزانہ ہے جس سے امت مسلمہ آج بھی رہنمائی حاصل کر رہی ہے۔',
+                title: 'پشتو تفسیر اور علمی مقام',
+                content: BiographyContent.pashtoTafsir,
               ),
 
               _buildSection(
                 icon: Icons.auto_stories_rounded,
-                title: 'دیگر اہم علمی تصانیف',
-                content:
-                    'تفسیر کے علاوہ آپ نے عقیدہ، فقہ اور حدیث پر گرانقدر کتب تصنیف فرمائیں، جن میں "التوحید فی القرآن"، "البنیان المرصوص"، "احکام الصلاۃ فی ضوء السنۃ"، "تبیین القرآن"، "رد البدعات والمنکرات"، اور خطبات کے متعدد مجموعے شامل ہیں جو اس ایپ میں بھی دستیاب ہیں۔',
+                title: 'معروف تصانیف',
+                content: BiographyContent.books,
               ),
 
               _buildSection(
-                icon: Icons.mic_external_on_rounded,
-                title: 'دعوت و تدریس اور اصلاحی خدمات',
-                content:
-                    'شیخ صاحب بیک وقت مفسر، خطیب، فقیہ اور مصلح تھے۔ آپ کے سالانہ دورہ ہائے تفسیر میں ہر سال ہزاروں علماء اور طلبہ دور دراز سے شرکت کرتے۔ آپ کی دعوت کا بنیادی محور "خالص توحید اور اتباع سنت" تھا۔ آپ نے شرک، بدعات اور رسوماتِ جاہلیت کے خاتمے کے لیے انتھک محنت فرمائی۔',
+                icon: Icons.edit_note_rounded,
+                title: 'قید و بند میں علمی خدمات',
+                content: BiographyContent.imprisonment,
+              ),
+
+              _buildSection(
+                icon: Icons.campaign_rounded,
+                title: 'دعوتی خدمات',
+                content: BiographyContent.outreach,
+              ),
+
+              _buildSection(
+                icon: Icons.library_books_rounded,
+                title: 'علمی میراث',
+                content: BiographyContent.legacy,
               ),
 
               _buildSection(
                 icon: Icons.nightlight_round,
-                title: 'وفات اور علمی میراث',
-                content:
-                    'تقریباً نصف صدی تک خدمت دین، تدریس قرآن اور اشاعت توحید میں گزارنے کے بعد نومبر ۲۰۱۴ء میں یہ آفتابِ علم غروب ہو گیا۔ آپ کے جنازے میں لاکھوں عقیدت مندوں، علماء اور شاگردوں نے شرکت کی۔ آپ اپنے پیچھے ہزاروں علماء اور بیش قیمت کتب کا ورثہ چھوڑ گئے۔',
-              ),
-
-              const SizedBox(height: 10),
-
-              // Supplication Box
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: accentGold.withValues(alpha: 0.4),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: accentGold.withValues(alpha: 0.08),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.favorite_rounded,
-                      color: accentGold,
-                      size: 28,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'رَحِمَهُ اللَّهُ رَحْمَةً وَاسِعَةً وَأَسْكَنَهُ فَسِيحَ جَنَّاتِهِ',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                        color: primaryEmerald,
-                        height: 1.6,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'اے اللہ! شیخ مرحوم کو اپنی رحمت اور مغفرت کے سایہ میں جگہ عطا فرما، ان کی قبر کو نور سے بھر دے، اور ان کے علمی آثار و تصانیف کو تا قیامت امت مسلمہ کے لیے مشعل راہ اور ان کے لیے صدقہ جاریہ بنا۔ آمین یا رب العالمین۔',
-                      style: TextStyle(
-                        fontSize: 14.5,
-                        height: 1.85,
-                        color: Color(0xFF1E2522),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+                title: 'وفات اور دعا',
+                content: BiographyContent.passing,
               ),
 
               const SizedBox(height: 30),

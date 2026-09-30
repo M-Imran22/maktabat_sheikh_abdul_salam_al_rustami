@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'data/biography_content.dart';
 import 'screens/books_screen.dart';
 import 'screens/audio_screen.dart';
 import 'screens/biography_screen.dart';
@@ -40,7 +41,7 @@ class MaktabatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'مکتبہ شیخ عبدالسلام الرستمی',
+      title: 'مکتبہ شیخ عبدالسلام رستمی',
       theme: AppTheme.lightTheme,
       home: const OpeningScreen(),
       debugShowCheckedModeBanner: false,
@@ -136,7 +137,7 @@ class _HomePageState extends State<HomePage> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'مکتبہ شیخ عبدالسلام الرستمی',
+            'مکتبہ شیخ عبدالسلام رستمی',
             style: TextStyle(
               fontSize: 21,
               fontWeight: FontWeight.w700,
@@ -220,7 +221,7 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       _buildNavigationCard(
                         title: 'کتابیں و مؤلفات (PDF)',
-                        subtitle: 'شیخ کی تمام کتب کا ڈیجیٹل مجموعہ',
+                        subtitle: 'شیخ کی کتب اور متعلقہ علمی مواد',
                         badgeText: '${BooksScreen.booksCount} کتب',
                         icon: Icons.menu_book_rounded,
                         cardColor: MaktabatApp.primaryEmerald,
@@ -252,7 +253,7 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(height: 12),
                       _buildNavigationCard(
                         title: 'شیخ کا تعارف و سوانح',
-                        subtitle: 'حالات زندگی، علمی خدمات اور دینی اسفار',
+                        subtitle: 'حالات زندگی، تدریسی خدمات اور تصانیف',
                         badgeText: 'سوانح حیات',
                         icon: Icons.person_pin_rounded,
                         cardColor: MaktabatApp.accentGold,
@@ -371,7 +372,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   const SizedBox(height: 6),
                   const Text(
-                    'سید عبدالسلام رستمی',
+                    'مولانا سید عبدالسلام رستمی',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 24,
@@ -388,11 +389,13 @@ class _HomePageState extends State<HomePage> {
                         size: 14,
                       ),
                       const SizedBox(width: 4),
-                      Text(
-                        'رحمہ اللہ تعالیٰ (۱۹۳۸ء - ۲۰۱۴ء)',
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 13,
+                      Expanded(
+                        child: Text(
+                          'رحمہ اللہ (وفات: 17 نومبر 2014ء)',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                     ],
@@ -527,7 +530,7 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 6),
           Text(
-            'الحمد لله رب العالمين والصلاة والسلام على رسوله الكريم\nاس ایپ میں حضرت مولانا شیخ عبدالسلام الرستمی رحمہ اللہ کی تمام تصانیف اور دروس شامل ہیں۔ اللہ پاک اس محنت کو ہم سب کے لیے ذریعہ نجات بنائے۔',
+            BiographyContent.legacy,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14.5,

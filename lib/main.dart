@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'data/biography_content.dart';
 import 'screens/books_screen.dart';
@@ -104,6 +106,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const _remindersChannel = MethodChannel(
+    'com.shaikhrustami.maktabat/reminders',
+  );
   String? _lastReadBook;
   int? _lastReadPage;
   String? _lastReadLocalPath;
@@ -112,6 +117,19 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _checkLastRead();
+    if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+      _initializeReminders();
+    }
+  }
+
+  Future<void> _initializeReminders() async {
+    try {
+      await _remindersChannel.invokeMethod<bool>('initialize');
+    } on PlatformException catch (_) {
+      // Reminders are optional; the rest of the app remains available.
+    } on MissingPluginException catch (_) {
+      // Other platforms do not have the Android reminder channel.
+    }
   }
 
   Future<void> _checkLastRead() async {

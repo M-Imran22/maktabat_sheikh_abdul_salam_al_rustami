@@ -191,7 +191,9 @@ void main() {
 
       // Different audio track has its own independent position
       const otherAudioId = 'خطبات جمعہ/001_Khutba.mp3';
-      var otherPos = await AudioPlayerService.getSavedAudioPosition(otherAudioId);
+      var otherPos = await AudioPlayerService.getSavedAudioPosition(
+        otherAudioId,
+      );
       expect(otherPos, 0);
     });
 
@@ -201,7 +203,10 @@ void main() {
       const book2 = 'توجيه الناظرين إلى مقاصد الكتاب المبين';
 
       // Save reading progress for book 1 on page 30
-      await prefs.setInt('last_page_$book1', 29); // 0-indexed page 29 is page 30
+      await prefs.setInt(
+        'last_page_$book1',
+        29,
+      ); // 0-indexed page 29 is page 30
       // Save bookmarks for book 1
       await prefs.setStringList('bookmarks_$book1', ['14', '29', '55']);
 
@@ -255,6 +260,34 @@ void main() {
             'https://play.google.com/store/apps/details?id=com.m_imran.tafsir_ahsan_al_kalam',
       );
       expect(launched, isTrue);
+    });
+
+    testWidgets('Daily reminders initialize without a home card', (
+      WidgetTester tester,
+    ) async {
+      const channel = MethodChannel('com.shaikhrustami.maktabat/reminders');
+      final calls = <String>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            calls.add(call.method);
+            if (call.method == 'initialize') return true;
+            return null;
+          });
+      addTearDown(() {
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(channel, null);
+      });
+      tester.view.physicalSize = const Size(1080, 2200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() => tester.view.reset());
+
+      await tester.pumpWidget(const MaktabatApp());
+      await tester.pump(const Duration(milliseconds: 1400));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(Switch), findsNothing);
+      expect(find.text('روزانہ دعوتی یاد دہانی'), findsNothing);
+      expect(calls, ['initialize']);
     });
   });
 }

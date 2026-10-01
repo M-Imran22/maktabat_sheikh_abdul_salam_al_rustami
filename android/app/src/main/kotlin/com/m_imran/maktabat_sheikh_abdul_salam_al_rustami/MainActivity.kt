@@ -1,7 +1,10 @@
 package com.m_imran.maktabat_sheikh_abdul_salam_al_rustami
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.view.WindowManager
 import com.ryanheise.audioservice.AudioServiceActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -10,9 +13,65 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : AudioServiceActivity() {
     private val CHANNEL = "com.shaikhrustami.maktabat/app_launcher"
     private val SCREEN_SECURITY_CHANNEL = "com.shaikhrustami.maktabat/screen_security"
+    private val REMINDERS_CHANNEL = "com.shaikhrustami.maktabat/reminders"
+    private val reminderPermissionRequest = 7301
+    private var pendingReminderResult: MethodChannel.Result? = null
+
+    override fun onResume() {
+        super.onResume()
+        DailyReminders.markOpened(this)
+        DailyReminders.scheduleAll(this)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != reminderPermissionRequest) return
+        val enabled = grantResults.isNotEmpty() &&
+            grantResults[0] == PackageManager.PERMISSION_GRANTED && DailyReminders.canNotify(this)
+        DailyReminders.setEnabled(this, enabled)
+        pendingReminderResult?.success(enabled)
+        pendingReminderResult = null
+    }
+
+    private fun enableReminders(result: MethodChannel.Result) {
+        if (pendingReminderResult != null) {
+            result.error("BUSY", "Notification permission request already active", null)
+            return
+        }
+        if (Build.VERSION.SDK_INT >= 33 &&
+            checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) {
+            pendingReminderResult = result
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), reminderPermissionRequest)
+        } else {
+            val enabled = DailyReminders.canNotify(this)
+            DailyReminders.setEnabled(this, enabled)
+            result.success(enabled)
+        }
+    }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, REMINDERS_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "initialize" -> {
+                        if (!DailyReminders.isInitialized(this)) {
+                            enableReminders(result)
+                        } else {
+                            if (!DailyReminders.isEnabled(this) && DailyReminders.canNotify(this)) {
+                                DailyReminders.setEnabled(this, true)
+                            }
+                            result.success(DailyReminders.isEnabled(this) && DailyReminders.canNotify(this))
+                        }
+                    }
+                    else -> result.notImplemented()
+                }
+            }
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, SCREEN_SECURITY_CHANNEL)
             .setMethodCallHandler { call, result ->
                 when (call.method) {
